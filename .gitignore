@@ -1,0 +1,13 @@
+node_modules
+package-lock.json
+
+.env
+
+index1.js
+index.txt
+draw.drawio
+index.html
+z.js
+uploadFile.js
+.vscode
+validate
