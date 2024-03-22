@@ -1,26 +1,32 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { findOneUser, createUser, getDetailUserProfile } = require('../services/user.service');
+const bcrypt = require('bcrypt');
+const { findOneUser, createUser, getDetailUserProfile, findOne } = require('../services/user.service');
 const authMiddleware = require('../middleware/validateToken.middleware');
 const userRouter = express.Router();
 
 userRouter.post('/login', async (req, res) => {
     const { email, password } = req.body;
-    const user = await findOneUser({ email, password });
-    if (!user) {
-        return res.status(401).json({ message: "username or password is wrong" });
+    const user = await findOne({ email });
+    if (user) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+            const { email, name, birth, address, nation, _id } = user;
+            const payload = {
+                email,
+                name,
+                birth,
+                address,
+                nation,
+                _id: _id.toString()
+            };
+            const token = jwt.sign(payload, "privateKey", { expiresIn: "1h" });
+            res.json({ token });
+        } else {
+            res.status(400).json({ message: "password is incorrect" });
+        }
     } else {
-        const { email, name, birth, address, nation, _id } = user;
-        const payload = {
-            email,
-            name,
-            birth,
-            address,
-            nation,
-            _id: _id.toString()
-        };
-        const token = jwt.sign(payload, "privateKey", { expiresIn: "1h" });
-        res.json({ token });
+        res.status(400).json({ message: "email or password is incorrect" });
     }
 });
 
@@ -32,8 +38,9 @@ userRouter.post('/register', async (req, res) => {
     if (existingUser) {
         return res.status(400).json({ message: "email already exists" });
     }
-    const user = await createUser({ password, email, name, birth, address, nation });
-    res.json(user);
+    const passwordHashed = await bcrypt.hash(password, 10);
+    await createUser({ password: passwordHashed, email, name, birth, address, nation });
+    res.json({ message: "user created" });
 });
 
 // get detail user profile

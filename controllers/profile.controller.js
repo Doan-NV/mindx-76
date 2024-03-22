@@ -8,7 +8,7 @@ profileRouter.use(authMiddleware)
 profileRouter.post('/create-profile', async (req, res) => {
     const { skill, hobby, ami } = req.body;
     const { _id } = req.user;
-    const existingProfile = await findOneProfile({ userId: _id });
+    const existingProfile = await findOneProfile({ user: _id });
     if (existingProfile) {
         return res.status(400).json({ message: "profile already exists" });
     }

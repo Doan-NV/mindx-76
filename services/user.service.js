@@ -21,6 +21,11 @@ const findOneUser = async (query) => {
     return user;
 }
 
+const findOne = async (query) => {
+    const user = await UserModel.findOne(query).exec();
+    return user;
+}
+
 const getDetailUserProfile = async (query) => {
     const user = await UserModel.findOne(query).populate('profile').select("-password").exec();
     return user;
@@ -31,5 +36,6 @@ module.exports = {
     createUser,
     updateUser,
     findOneUser,
-    getDetailUserProfile
+    getDetailUserProfile,
+    findOne
 }

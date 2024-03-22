@@ -10,7 +10,7 @@ const ProfileSchema = new mongoose.Schema(
       },
     },
     hobby: String,
-    aim: {
+    ami: {
       type: Array,
       item: {
         type: String,
